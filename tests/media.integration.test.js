@@ -45,13 +45,17 @@ test("media API protects documents and accepts only server-owned references", as
     assert.equal(gallery.body.data.private, false);
     const doc = await api.request("/api/v1/media", {
       token,
-      body: { scope: "/vehicles", name: "RC.png", dataUrl },
+      body: { scope: "/vehicles", name: "RC.png", dataUrl, unsigned: true, type: "upload", upload_preset: "unsigned", public_id: "client-id" },
     });
     assert.equal(doc.status, 201);
     assert.equal(doc.body.data.private, true);
     assert.equal(doc.body.data.url, undefined);
     assert.equal(calls[0].type, "upload");
     assert.equal(calls[1].type, "authenticated");
+    assert.equal(calls[1].unsigned, false);
+    assert.equal(calls[1].overwrite, false);
+    assert.equal(calls[1].upload_preset, undefined);
+    assert.notEqual(calls[1].public_id, "client-id");
     const list = await api.request("/api/v1/media?scope=/gallery", { token });
     assert.equal(list.body.data.items.length, 1);
     await Media.create(

@@ -20,6 +20,9 @@ export async function uploadMedia(body, scope, owner) {
   let result;
   try {
     result = await client.uploader.upload(body.dataUrl, {
+      // The SDK signs these server-owned parameters with the backend API secret.
+      // Explicitly disable unsigned uploads, including any global SDK setting.
+      unsigned: false,
       public_id: publicId,
       resource_type: resourceType,
       type: deliveryType,
