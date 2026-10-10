@@ -20,6 +20,10 @@ test('all allowlisted admin resources support validated and authorized CRUD', as
         const definition = RESOURCE_DEFINITIONS[fixture.route]
         assert.ok(definition, `Missing backend definition for ${fixture.route}`)
 
+        if (fixture.route === 'area-seo') {
+          const city = await api.request('/api/v1/cities', { token, body: { cityName: fixture.body.cityName, slug: 'area-test-master-city' } })
+          assertStatus(city, 201)
+        }
         let response = await api.request(`/api/v1/${fixture.route}`, {
           token,
           body: {},

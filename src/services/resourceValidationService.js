@@ -1,3 +1,4 @@
+import { validateSeoFields } from './seoValidationService.js'
 import { ISSUE_STATUSES } from '../constants/resources.js'
 import { unprocessable } from '../utils/errors.js'
 
@@ -41,6 +42,7 @@ function validateDate(field, value) {
 
 function validateFile(field, value) {
   if (value === undefined || value === null || value === '') return
+  if (value?.mediaId && typeof value.mediaId === 'string') return
   if (typeof value === 'string') {
     if (value.length > 3 * 1024 * 1024) invalid(field, 'maximum size exceeded', `${field} is too large`)
     return
@@ -72,6 +74,7 @@ function validateUrl(field, value) {
 }
 
 export function validateResourceData(definition, data) {
+  if (['blogs','route-seo','area-seo','cities'].includes(definition.key)) validateSeoFields(data)
   for (const field of numericFields[definition.key] || []) {
     const value = data[field]
     if (value === undefined || value === null || value === '') continue

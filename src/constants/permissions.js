@@ -13,6 +13,7 @@ const limited = Object.freeze({
 export const PERMISSION_PATHS = Object.freeze([
   '/',
   '/leads',
+  '/gallery',
   ...new Set(Object.values(RESOURCE_DEFINITIONS).map(resource => resource.permission)),
   '/masters/invoice-settings',
 ])

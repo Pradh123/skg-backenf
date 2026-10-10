@@ -1,3 +1,4 @@
+import { Media } from '../models/Media.js'
 import { User, publicUser } from '../models/User.js'
 import { Session } from '../models/Session.js'
 import { RecordModel } from '../models/Record.js'
@@ -15,6 +16,7 @@ function duplicateError(error) {
 export async function initializeModels() {
   await Promise.all([
     User.createIndexes(),
+    Media.createIndexes(),
     Session.createIndexes(),
     RecordModel.createIndexes(),
     Setting.createIndexes(),

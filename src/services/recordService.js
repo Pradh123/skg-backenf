@@ -1,5 +1,5 @@
 import { RecordModel, publicRecord } from '../models/Record.js'
-import { conflict, notFound } from '../utils/errors.js'
+import { conflict, notFound, unprocessable } from '../utils/errors.js'
 import { escapeRegex } from '../utils/validation.js'
 
 function duplicateError(error) {
@@ -45,7 +45,20 @@ export async function assertUnique(definition, data, excludeId = null) {
   }
 }
 
+export async function validateAreaCity(definition, data) {
+  if (definition.key !== 'area-seo') return
+  const cityName = typeof data.cityName === 'string' ? data.cityName.trim() : ''
+  if (!cityName) throw unprocessable('Select a city from Masters / Cities', [{ field: 'cityName', issue: 'required' }])
+  const city = await RecordModel.findOne({
+    resource: 'cities',
+    'data.cityName': new RegExp('^' + escapeRegex(cityName) + '$', 'i'),
+  }).select('data.cityName').lean()
+  if (!city) throw unprocessable('Selected city does not exist in Masters / Cities', [{ field: 'cityName', issue: 'unknown master city' }])
+  data.cityName = city.data.cityName
+}
+
 export async function createRecord(definition, data) {
+  await validateAreaCity(definition, data)
   await assertUnique(definition, data)
   try {
     const record = await RecordModel.create({ resource: definition.key, data })
@@ -58,6 +71,7 @@ export async function createRecord(definition, data) {
 
 export async function updateRecord(definition, id, data) {
   const record = await getRecord(definition, id)
+  await validateAreaCity(definition, data)
   await assertUnique(definition, data, id)
   record.data = data
   record.markModified('data')

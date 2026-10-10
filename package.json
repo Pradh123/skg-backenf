@@ -11,9 +11,11 @@
     "dev": "node --env-file-if-exists=.env --watch src/server.js",
     "start": "node --env-file-if-exists=.env src/server.js",
     "test": "node --test --test-concurrency=1",
-    "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage"
+    "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage",
+    "media:migrate": "node --env-file-if-exists=.env scripts/migrate-private-media.mjs"
   },
   "dependencies": {
+    "cloudinary": "^2.11.0",
     "express": "^5.1.0",
     "mongoose": "^8.19.1"
   }

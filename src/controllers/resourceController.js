@@ -1,3 +1,4 @@
+import { validateMediaReferences } from '../services/mediaService.js'
 import { RecordModel, publicRecord } from '../models/Record.js'
 import { createRecord, deleteRecord, getRecord, listRecords, updateRecord } from '../services/recordService.js'
 import { sendData } from '../utils/response.js'
@@ -127,6 +128,7 @@ export function createResourceController(definition) {
     create: async (req, res) => {
       const data = await withLinkedValues(definition, prepare(definition, cleanPayload(req.body)))
       validateRequired(data, definition.required)
+      await validateMediaReferences(data, definition)
       validateResourceData(definition, data)
       return sendData(res, await createRecord(definition, data), 201)
     },
@@ -141,6 +143,7 @@ export function createResourceController(definition) {
       delete data.createdAt
       delete data.updatedAt
       validateRequired(data, definition.required)
+      await validateMediaReferences(data, definition)
       validateResourceData(definition, data)
       return sendData(res, await updateRecord(definition, req.params.id, data))
     },

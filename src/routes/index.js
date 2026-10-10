@@ -1,3 +1,4 @@
+import { mediaRoutes } from './mediaRoutes.js'
 import { Router } from 'express'
 import { RESOURCE_DEFINITIONS } from '../constants/resources.js'
 import { createAuthRoutes } from './authRoutes.js'
@@ -20,6 +21,7 @@ export function createApiRoutes(config) {
   router.use('/leads', leadRoutes)
   router.use('/settings', settingRoutes)
   router.use('/profile', profileRoutes)
+  router.use('/media', mediaRoutes)
   router.use('/lookups', lookupRoutes)
   router.get('/dashboard', authenticate, requirePermission('/', 'view'), dashboardController.get)
   for (const definition of Object.values(RESOURCE_DEFINITIONS)) {

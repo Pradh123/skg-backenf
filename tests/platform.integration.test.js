@@ -154,28 +154,28 @@ test('public APIs, CMS, settings, dashboard, CORS, and HTTP error behavior', asy
         {
           route: 'area-seo',
           body: {
-            areaName: 'Published Area', cityName: 'Mumbai', h1Title: 'Published H1',
+            areaName: 'Published Area', cityName: 'Published City', h1Title: 'Published H1',
             seoTitle: 'Published SEO', slug: 'published-area', published: true, active: true,
           },
         },
         {
           route: 'area-seo',
           body: {
-            areaName: 'Draft Area', cityName: 'Mumbai', h1Title: 'Draft H1',
+            areaName: 'Draft Area', cityName: 'Published City', h1Title: 'Draft H1',
             seoTitle: 'Draft SEO', slug: 'draft-area', published: false, active: true,
           },
         },
         {
           route: 'area-seo',
           body: {
-            areaName: 'Inactive Area', cityName: 'Mumbai', h1Title: 'Inactive H1',
+            areaName: 'Inactive Area', cityName: 'Published City', h1Title: 'Inactive H1',
             seoTitle: 'Inactive SEO', slug: 'inactive-area', published: true, active: false,
           },
         },
         {
           route: 'area-seo',
           body: {
-            areaName: 'Contradictory Area', cityName: 'Mumbai', h1Title: 'Contradictory H1',
+            areaName: 'Contradictory Area', cityName: 'Published City', h1Title: 'Contradictory H1',
             seoTitle: 'Contradictory SEO', slug: 'contradictory-area',
             status: 'Published', published: false, active: true,
           },

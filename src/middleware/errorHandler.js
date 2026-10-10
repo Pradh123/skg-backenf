@@ -34,7 +34,7 @@ export function errorHandler(error, req, res, _next) {
     code = 'REQUEST_ERROR'
   }
 
-  if (status >= 500) {
+  if (status >= 500 && !(error instanceof HttpError && ['MEDIA_NOT_CONFIGURED', 'MEDIA_UPLOAD_FAILED', 'MEDIA_DELETE_FAILED'].includes(error.code))) {
     status = 500
     code = 'INTERNAL_ERROR'
     message = 'An unexpected error occurred'
