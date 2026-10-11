@@ -10,6 +10,7 @@ function positiveInteger(value, fallback, name) {
 
 function origins(value) {
   const fallback = [
+    'https://cms-of-skg.vercel.app',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000',
