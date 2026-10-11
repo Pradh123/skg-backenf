@@ -1,4 +1,5 @@
 import { validateSeoFields } from './seoValidationService.js'
+import { validateFaqs } from './faqValidationService.js'
 import { ISSUE_STATUSES } from '../constants/resources.js'
 import { unprocessable } from '../utils/errors.js'
 
@@ -74,6 +75,7 @@ function validateUrl(field, value) {
 }
 
 export function validateResourceData(definition, data) {
+  if (['blogs', 'route-seo', 'area-seo'].includes(definition.key)) validateFaqs(data)
   if (['blogs','route-seo','area-seo','cities'].includes(definition.key)) validateSeoFields(data)
   for (const field of numericFields[definition.key] || []) {
     const value = data[field]

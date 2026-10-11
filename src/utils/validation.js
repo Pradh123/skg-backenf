@@ -25,7 +25,10 @@ export function cleanPayload(body, { allowEmpty = false } = {}) {
     .filter(([key]) => !RESERVED_KEYS.has(key)))
   if (!allowEmpty && Object.keys(cleaned).length === 0) throw unprocessable('Request body cannot be empty')
   for (const [key, value] of Object.entries(cleaned)) {
-    if (typeof value === 'string' && value.length > 3 * 1024 * 1024) {
+    const maxLength = typeof value === 'string' && /^data:image\/(png|jpe?g|webp|gif);base64,/i.test(value)
+      ? Math.ceil(5 * 1024 * 1024 / 3) * 4 + 100
+      : 3 * 1024 * 1024
+    if (typeof value === 'string' && value.length > maxLength) {
       throw unprocessable(`${key} is too long`, [{ field: key, issue: 'maximum length exceeded' }])
     }
   }

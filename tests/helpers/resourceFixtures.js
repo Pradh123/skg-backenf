@@ -139,7 +139,7 @@ export const RESOURCE_CASES = Object.freeze([
   },
   {
     route: 'route-seo',
-    body: { title: 'Mumbai to Integration City Taxi', status: 'Published' },
+    body: { title: 'Mumbai to Integration City Taxi', cityName: 'Mumbai', status: 'Published' },
     expected: { slug: 'mumbai-to-integration-city-taxi', status: 'Published' },
   },
   {

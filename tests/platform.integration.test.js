@@ -182,11 +182,11 @@ test('public APIs, CMS, settings, dashboard, CORS, and HTTP error behavior', asy
         },
         {
           route: 'route-seo',
-          body: { title: 'Published Route', slug: 'published-route', status: 'Published' },
+          body: { title: 'Published Route', cityName: 'Published City', slug: 'published-route', status: 'Published' },
         },
         {
           route: 'route-seo',
-          body: { title: 'Draft Route', slug: 'draft-route', status: 'Draft', published: true },
+          body: { title: 'Draft Route', cityName: 'Published City', slug: 'draft-route', status: 'Draft', published: true },
         },
         {
           route: 'blogs',

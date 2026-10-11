@@ -6,6 +6,23 @@ import {
   signedMediaUrl,
 } from "../src/services/cloudinaryService.js";
 import { mediaDTO } from "../src/models/Media.js";
+import { validateImageValue } from "../src/services/mediaValidationService.js";
+import { cleanPayload } from "../src/utils/validation.js";
+
+test("images accept exactly 5 MB while PDFs retain a 2 MB limit", () => {
+  const image = Buffer.alloc(5 * 1024 * 1024);
+  Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(image);
+  const dataUrl = "data:image/png;base64," + image.toString("base64");
+  assert.equal(validateUpload({ dataUrl, scope: "/gallery" }).size, image.length);
+  assert.equal(validateUpload({ dataUrl, scope: "/drivers" }).size, image.length);
+  assert.equal(validateImageValue(cleanPayload({ photo: dataUrl }).photo), dataUrl);
+  const tooLarge = "data:image/png;base64," + Buffer.concat([image, Buffer.alloc(1)]).toString("base64");
+  assert.throws(() => validateUpload({ dataUrl: tooLarge, scope: "/gallery" }), { status: 422 });
+  assert.throws(() => validateImageValue(tooLarge), { status: 422 });
+  const pdf = Buffer.alloc(2 * 1024 * 1024 + 1);
+  pdf.write("%PDF-1.4");
+  assert.throws(() => validateUpload({ dataUrl: "data:application/pdf;base64," + pdf.toString("base64"), scope: "/vehicles" }), { status: 422 });
+});
 test("media authorization separates public gallery and private scopes", () => {
   const user = {
     role: "Admin",
@@ -58,7 +75,7 @@ test("uploads reject executable types, false MIME and oversized files", () => {
       validateUpload({
         dataUrl:
           "data:image/png;base64," +
-          Buffer.alloc(2 * 1024 * 1024 + 1).toString("base64"),
+          Buffer.alloc(5 * 1024 * 1024 + 1).toString("base64"),
       }),
     { status: 422 },
   );

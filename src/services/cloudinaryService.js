@@ -35,9 +35,10 @@ export function validateUpload(body) {
   if (!match)
     throw unprocessable("Only JPEG, PNG, WEBP, GIF and PDF files are allowed");
   const bytes = Buffer.from(match[2], "base64");
-  if (!bytes.length || bytes.length > 2 * 1024 * 1024)
-    throw unprocessable("File must be no larger than 2 MB");
   const mime = match[1];
+  const maxMb = mime.startsWith("image/") ? 5 : 2;
+  if (!bytes.length || bytes.length > maxMb * 1024 * 1024)
+    throw unprocessable(`File must be no larger than ${maxMb} MB`);
   const valid =
     mime === "image/jpeg"
       ? bytes.subarray(0, 3).equals(Buffer.from([255, 216, 255]))

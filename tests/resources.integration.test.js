@@ -18,6 +18,8 @@ test('all allowlisted admin resources support validated and authorized CRUD', as
     for (const fixture of RESOURCE_CASES) {
       await t.test(`${fixture.route} create, list, search, get, update, and delete`, async () => {
         const definition = RESOURCE_DEFINITIONS[fixture.route]
+        const hasFaqs = ['blogs', 'route-seo', 'area-seo'].includes(fixture.route)
+        const faqs = [{ title: 'How do I book?', description: '<p>Book <strong>online</strong>.</p>' }]
         assert.ok(definition, `Missing backend definition for ${fixture.route}`)
 
         if (fixture.route === 'area-seo') {
@@ -32,10 +34,11 @@ test('all allowlisted admin resources support validated and authorized CRUD', as
 
         response = await api.request(`/api/v1/${fixture.route}`, {
           token,
-          body: fixture.body,
+          body: { ...fixture.body, ...(hasFaqs ? { faqs } : {}) },
         })
         assertStatus(response, 201)
         const created = response.body.data
+        if (hasFaqs) assert.deepEqual(created.faqs, faqs)
         assert.equal(typeof created.id, 'string')
         assert.ok(created.createdAt)
         assert.ok(created.updatedAt)
@@ -46,6 +49,22 @@ test('all allowlisted admin resources support validated and authorized CRUD', as
         response = await api.request(`/api/v1/${fixture.route}/${created.id}`, { token })
         assertStatus(response, 200)
         assert.equal(response.body.data.id, created.id)
+        if (hasFaqs) {
+          const publicFaq = await api.request(`/api/v1/public/cms/${fixture.route}/${created.slug}`)
+          assertStatus(publicFaq, 200)
+          assert.deepEqual(publicFaq.body.data.faqs, faqs)
+          const invalid = await api.request(`/api/v1/${fixture.route}/${created.id}`, { token, method: 'PATCH', body: { faqs: [{ title: 'Missing answer', description: '' }] } })
+          assertError(invalid, 422, 'VALIDATION_ERROR')
+          const changed = [{ title: 'Can I cancel?', description: '<p>Call our <em>support team</em>.</p>' }]
+          const updated = await api.request(`/api/v1/${fixture.route}/${created.id}`, { token, method: 'PATCH', body: { faqs: changed } })
+          assertStatus(updated, 200)
+          assert.deepEqual(updated.body.data.faqs, changed)
+          const publicUpdated = await api.request(`/api/v1/public/cms/${fixture.route}/${created.slug}`)
+          assert.deepEqual(publicUpdated.body.data.faqs, changed)
+          const cleared = await api.request(`/api/v1/${fixture.route}/${created.id}`, { token, method: 'PATCH', body: { faqs: [] } })
+          assertStatus(cleared, 200)
+          assert.deepEqual(cleared.body.data.faqs, [])
+        }
 
         const searchField = definition.searchable[0]
         const searchValue = created[searchField]

@@ -46,7 +46,7 @@ export async function assertUnique(definition, data, excludeId = null) {
 }
 
 export async function validateAreaCity(definition, data) {
-  if (definition.key !== 'area-seo') return
+  if (!['area-seo', 'route-seo'].includes(definition.key)) return
   const cityName = typeof data.cityName === 'string' ? data.cityName.trim() : ''
   if (!cityName) throw unprocessable('Select a city from Masters / Cities', [{ field: 'cityName', issue: 'required' }])
   const city = await RecordModel.findOne({
