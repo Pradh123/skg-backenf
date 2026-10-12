@@ -6,7 +6,9 @@ Health check: https://skg-backenf.onrender.com/health
 
 Build command: `npm ci`. Start command: `npm start`. Health check path: `/health`.
 
-Set `NODE_ENV=production`, `NODE_VERSION=22`, `TRUST_PROXY=true`, Atlas `MONGODB_URI`, `ADMIN_EMAIL`, a unique strong `ADMIN_PASSWORD`, and the three `CLOUDINARY_*` credentials in Render Environment.
+Set `NODE_ENV=production`, `NODE_VERSION=22`, `TRUST_PROXY=true`, Atlas `MONGODB_URI`, and the three `CLOUDINARY_*` credentials in Render Environment.
+
+The backend creates the Super Admin automatically on startup when the account is missing: `skgtravels9@gmail.com` / `ChangeMe123!`. No `ADMIN_EMAIL` or `ADMIN_PASSWORD` environment variables are needed or read. Change the password from the admin profile after the first login. Production restarts preserve an existing account's password; redeploying does not reset it.
 
 Set `CORS_ORIGINS` to the exact admin and public website origins, comma-separated, without paths or trailing slashes. Keep localhost origins if local frontend access is needed. The backend URL does not need to be added to CORS as a frontend origin.
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { loadConfig, DEFAULT_ADMIN_PASSWORD } from '../src/config/env.js'
+import { loadConfig, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD } from '../src/config/env.js'
 import { errorHandler } from '../src/middleware/errorHandler.js'
 import { User } from '../src/models/User.js'
 import { Session } from '../src/models/Session.js'
@@ -10,9 +10,11 @@ import { hashPassword, verifyPassword } from '../src/services/passwordService.js
 import { HttpError } from '../src/utils/errors.js'
 import { createTestServer } from './helpers/testServer.js'
 
-test('production configuration requires a strong non-default admin password', () => {
+test('production configuration supports automatic default admin creation and requires strong passwords', () => {
+  const defaults = loadConfig({ nodeEnv: 'production' })
+  assert.equal(defaults.adminEmail, 'skgtravels9@gmail.com')
+  assert.equal(defaults.adminPassword, DEFAULT_ADMIN_PASSWORD)
   for (const password of [
-    DEFAULT_ADMIN_PASSWORD,
     'short!',
     'alllowercase1!',
     'ALLUPPERCASE1!',
@@ -35,6 +37,27 @@ test('production configuration requires a strong non-default admin password', ()
     () => loadConfig({ nodeEnv: 'production', adminPassword: `${maximumLength}b` }),
     /ADMIN_PASSWORD/,
   )
+})
+
+test('production startup creates the default admin once and preserves its changed password', async () => {
+  const api = await createTestServer({
+    nodeEnv: 'production',
+    adminEmail: DEFAULT_ADMIN_EMAIL,
+    adminPassword: DEFAULT_ADMIN_PASSWORD,
+  })
+  try {
+    const login = await api.login(DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD)
+    assert.equal(login.user.role, 'Super Admin')
+    const admin = await User.findOne({ email: DEFAULT_ADMIN_EMAIL }).select('+passwordHash')
+    admin.passwordHash = await hashPassword('OwnerSelected789#')
+    await admin.save()
+    await ensureSuperAdmin(api.config)
+    assert.equal(await User.countDocuments({ email: DEFAULT_ADMIN_EMAIL }), 1)
+    const relogin = await api.login(DEFAULT_ADMIN_EMAIL, 'OwnerSelected789#')
+    assert.equal(relogin.user.id, login.user.id)
+  } finally {
+    await api.close()
+  }
 })
 
 test('unexpected server errors never expose their internal message', () => {
